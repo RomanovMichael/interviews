@@ -57,7 +57,7 @@
 
   const submitForm = (): void => {
     if(isLogin.value) {
-      signIn
+      signIn()
     } else {
       signUp()
     }
