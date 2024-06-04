@@ -8,6 +8,7 @@ import { useUserStore } from '@/stores/user'
 
 const userStore = useUserStore()
 const router = useRouter()
+
 const db = getFirestore()
 const company = ref<string>('')
 const vacancyLink = ref<string>('')
