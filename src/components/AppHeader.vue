@@ -48,7 +48,6 @@ const signOutMethod = async (): Promise<void> => {
 }
 </script>
 <template>
-  {{userStore.userId}}
   <app-menubar :model="items" class="menu">
     <template #item="{ item, props }">
       <template v-if="item.show">
