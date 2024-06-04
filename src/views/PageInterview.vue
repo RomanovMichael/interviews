@@ -65,7 +65,6 @@
 <template>
   <app-progress v-if="isLoading" />
   <div class="content-interview" v-else-if="interview?.id && !isLoading">
-    {{ interview }}
     <app-card>
       <template #title>Собеседование в компанию {{ interview.company }}</template>
       <template #content>
