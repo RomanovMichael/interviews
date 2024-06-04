@@ -1,11 +1,9 @@
 <script setup lang="ts">
-  import { ref, computed, onMounted } from 'vue'
+  import { ref, onMounted } from 'vue'
   import { useRoute } from 'vue-router'
-  import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore'
+  import { getFirestore, doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore'
   import { useUserStore } from '@/stores/user'
   import type { IInterview, IStage } from '@/interfaces'
-  import dayjs from 'dayjs'
-
 
   const db = getFirestore()
   const userStore = useUserStore()
@@ -18,7 +16,23 @@
   const getData = async (): Promise<void> => {
     isLoading.value = true
     const docSnap = await getDoc(docref)
-    interview.value = docSnap.data() as IInterview
+
+    if(docSnap.exists()) {
+      const data = docSnap.data() as IInterview
+
+      if(data.stages && data.stages.length) {
+        data.stages = data.stages.map((stage: IStage) => {
+          if(stage.date && stage.date instanceof Timestamp) {
+            return {
+              ...stage,
+              date: stage.date.toDate()
+            }
+          }
+          return stage
+        })
+      }
+      interview.value = docSnap.data() as IInterview
+    }
     isLoading.value = false
   }
 
@@ -27,7 +41,7 @@
       if(!interview.value.stages) {
         interview.value.stages = []
       }
-      interview.value.stages.push({name: '', date: '', description: ''})
+      interview.value.stages.push({name: '', date: null, description: ''})
     }
   }
 
@@ -43,13 +57,6 @@
     isLoading.value = true
     await updateDoc(docref, { ...interview.value})
     await getData()
-  }
-
-  const saveDateStage = (index:number) => {
-    if(interview.value?.stages && interview.value.stages.length) {
-      const date = interview.value.stages[index].date
-      interview.value.stages[index].date = dayjs(date).format('DD.MM.YYYY')
-    }
   }
 
   onMounted(async () => getData())
@@ -130,7 +137,6 @@
                 class="input mb-3"
                 :id="`stage-date-${index}`"
                 dateFormat="dd.mm.yy"
-                @date-select="saveDateStage(index)"
                 v-model="stage.date"
               />
             </div>
